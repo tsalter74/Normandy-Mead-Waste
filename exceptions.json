@@ -1,0 +1,49 @@
+{
+  "_README": [
+    "CENTRAL HOLIDAY ADJUSTMENTS for the Normandy Mead collection calendar.",
+    "",
+    "This is the ONE file to edit when the council shifts collections for bank",
+    "holidays. Every household's app re-reads it on load, so a single commit here",
+    "updates everyone. No app rebuild, no version bump, no reinstall needed.",
+    "",
+    "HOW TO EDIT",
+    "  1. Open this file on GitHub and click the pencil icon.",
+    "  2. Add an entry to \"adjustments\" for each affected collection.",
+    "  3. Commit. Users pick it up next time they open the app with a signal.",
+    "",
+    "ENTRY FORMAT — 'scheduled' is the normal date the app would have shown;",
+    "it is the key, so keep it exactly as the regular schedule would produce.",
+    "",
+    "  Moved to a different day:",
+    "    { \"scheduled\": \"2026-12-24\", \"actual\": \"2026-12-23\", \"reason\": \"Christmas Eve\" }",
+    "",
+    "  Cancelled with no replacement:",
+    "    { \"scheduled\": \"2027-01-01\", \"cancelled\": true, \"reason\": \"New Year's Day\" }",
+    "",
+    "  Same day but the other bin goes out:",
+    "    { \"scheduled\": \"2027-04-01\", \"type\": \"recycling\", \"reason\": \"Easter swap\" }",
+    "",
+    "  Fields: scheduled (required), actual, cancelled, type, reason.",
+    "  Dates are YYYY-MM-DD. 'type' is \"general\" or \"recycling\".",
+    "",
+    "IMPORTANT: adjusting a date does NOT change the alternation. The app works",
+    "out which bin is due from the regular schedule, then moves that collection.",
+    "So a Christmas shift will not knock the general/recycling cycle out of step.",
+    "",
+    "Entries in the past are harmless — leave them as a record, or tidy up",
+    "occasionally. Bump 'updated' when you change anything."
+  ],
+
+  "updated": "2026-09-03",
+
+  "_example": [
+    "Copy an entry from here into 'adjustments' below and edit the dates.",
+    "Delete nothing from this list — it is ignored by the app and kept as a crib sheet.",
+    { "scheduled": "2026-12-24", "actual": "2026-12-23", "reason": "Christmas Eve" },
+    { "scheduled": "2026-12-31", "actual": "2027-01-02", "reason": "New Year" },
+    { "scheduled": "2027-04-01", "cancelled": true, "reason": "Easter — no collection" }
+  ],
+
+  "adjustments": [
+  ]
+}

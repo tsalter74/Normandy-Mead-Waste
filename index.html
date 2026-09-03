@@ -54,6 +54,21 @@
       <span class="legend-item"><i class="swatch recycling"></i>Recycling</span>
       <span class="legend-item"><i class="swatch general"></i>General waste</span>
     </nav>
+    <button id="btnSettings" class="icon-btn" aria-label="Settings" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.5-2-3.4-2.4.6a7.6 7.6 0 0 0-1.7-1L15 3h-4l-.3 2.7a7.6 7.6 0 0 0-1.7 1l-2.4-.6-2 3.4L6.6 11a7.5 7.5 0 0 0 0 2l-2 1.5 2 3.4 2.4-.6a7.6 7.6 0 0 0 1.7 1L11 21h4l.3-2.7a7.6 7.6 0 0 0 1.7-1l2.4.6 2-3.4-2-1.5Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="nav-row">
+    <button id="btnToday" class="btn btn-today">Today</button>
+    <div class="range-nav">
+      <button id="btnPrev" class="btn-icon" aria-label="Earlier collections">‹</button>
+      <span id="rangeLabel" class="range-label">…</span>
+      <button id="btnNext" class="btn-icon" aria-label="Later collections">›</button>
+    </div>
   </div>
 
   <p class="next-up" id="nextUp"></p>
@@ -63,6 +78,66 @@
   <button id="installBtn" class="btn btn-install" hidden>⇩ Install app</button>
   <p id="iosHint" class="ios-hint" hidden>On iPhone/iPad: tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install.</p>
 </main>
+
+<!-- Settings panel -->
+<div id="settingsOverlay" class="settings-overlay" hidden>
+  <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-head">
+      <h2 id="settingsTitle">Settings</h2>
+      <button id="btnCloseSettings" class="icon-btn" aria-label="Close settings">✕</button>
+    </div>
+
+    <label class="settings-field">
+      <span>Collections to show</span>
+      <select id="countSelect">
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="6">6</option>
+        <option value="8">8</option>
+        <option value="12">12</option>
+      </select>
+    </label>
+
+    <label class="settings-field">
+      <span>Collection day</span>
+      <select id="weekdaySelect">
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+    </label>
+
+    <label class="settings-field">
+      <span>Reference date</span>
+      <input type="date" id="anchorDate">
+    </label>
+
+    <label class="settings-field">
+      <span>…is a collection of</span>
+      <select id="anchorType">
+        <option value="general">General waste</option>
+        <option value="recycling">Recycling</option>
+      </select>
+    </label>
+
+    <p class="settings-note" id="scheduleSummary"></p>
+
+    <div class="settings-sep"></div>
+
+    <div class="settings-status">
+      <span>Holiday adjustments</span>
+      <span id="exceptionStatus" class="status-pill">checking…</span>
+    </div>
+    <p class="settings-note">Bank holiday changes are published centrally, so everyone on the schedule gets the same updates automatically.</p>
+
+    <button id="btnReset" class="btn btn-reset">Reset to defaults</button>
+    <p class="settings-note settings-foot">Settings are saved on this device only.</p>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>
