@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Normandy Mead Waste Collection Calendar</title>
+<meta name="description" content="Weekly bin collection schedule for Normandy Mead — alternating recycling and general waste.">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1420">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Normandy Mead Waste">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="glow" aria-hidden="true"></div>
+
+<header class="app-header">
+  <div class="title-row">
+    <svg class="mark" width="26" height="26" viewBox="10 18 80 78" aria-hidden="true"
+         fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M24 34 H76 V40 H24 Z" stroke="var(--text)" stroke-width="5"/>
+      <path d="M42 28 H58 V34 H42 Z" stroke="var(--text)" stroke-width="5"/>
+      <path d="M29 40 L33 84 H67 L71 40" stroke="var(--text)" stroke-width="5"/>
+      <path d="M43 52 V72" stroke="var(--recycling)" stroke-width="5"/>
+      <path d="M57 52 V72" stroke="var(--general)" stroke-width="5"/>
+    </svg>
+    <h1>Normandy Mead<span> Waste Collection</span></h1>
+  </div>
+
+  <div class="divider" aria-hidden="true">
+    <svg viewBox="0 0 400 4" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="dGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="var(--recycling)"/>
+          <stop offset="100%" stop-color="var(--general)"/>
+        </linearGradient>
+      </defs>
+      <line x1="0" y1="2" x2="400" y2="2" stroke="url(#dGrad)" stroke-width="2"/>
+    </svg>
+  </div>
+</header>
+
+<main>
+  <div class="top-bar">
+    <nav class="legend" aria-label="Collection type key">
+      <span class="legend-item"><i class="swatch recycling"></i>Recycling</span>
+      <span class="legend-item"><i class="swatch general"></i>General waste</span>
+    </nav>
+  </div>
+
+  <p class="next-up" id="nextUp"></p>
+
+  <section id="board" class="board"></section>
+
+  <button id="installBtn" class="btn btn-install" hidden>⇩ Install app</button>
+  <p id="iosHint" class="ios-hint" hidden>On iPhone/iPad: tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install.</p>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

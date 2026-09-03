@@ -1,0 +1,236 @@
+:root {
+  --bg: #0a1420;
+  --surface: #101e30;
+  --surface-2: #142338;
+  --hairline: #22364f;
+  --text: #eef3f9;
+  --text-muted: #8ca0bc;
+
+  --recycling: #2fae6b;
+  --recycling-dim: rgba(47, 174, 107, 0.15);
+  --general: #94a3b4;
+  --general-dim: rgba(148, 163, 180, 0.14);
+  --amber: #e8a33d;
+
+  --font-display: -apple-system, "Segoe UI Semibold", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+/* The hidden attribute must always win over any element's own display rule. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.glow {
+  position: fixed;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140vw;
+  height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(47, 174, 107, 0.06) 0%, rgba(148, 163, 180, 0.05) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-header {
+  position: relative;
+  z-index: 1;
+  padding: 12px 18px 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark { flex-shrink: 0; }
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.08rem;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+h1 span {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.divider {
+  margin-top: 9px;
+  height: 3px;
+  opacity: 0.7;
+}
+.divider svg { width: 100%; height: 100%; }
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 10px 18px 20px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.swatch {
+  width: 9px; height: 9px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.swatch.recycling { background: var(--recycling); }
+.swatch.general { background: var(--general); }
+
+.next-up {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.next-up strong { color: var(--amber); font-weight: 600; }
+
+/* Collection cards */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  border-left: 4px solid transparent;
+  background: var(--surface);
+  animation: rise 0.3s ease backwards;
+}
+.day-row.recycling { background: linear-gradient(90deg, var(--recycling-dim), var(--surface) 45%); border-left-color: var(--recycling); }
+.day-row.general { background: linear-gradient(90deg, var(--general-dim), var(--surface) 45%); border-left-color: var(--general); }
+.day-row.is-today { border-color: var(--amber); box-shadow: 0 0 0 1px rgba(232,163,61,0.35), 0 0 18px rgba(232,163,61,0.12); }
+
+.date-block {
+  font-family: var(--font-mono);
+  text-align: center;
+  min-width: 48px;
+  flex-shrink: 0;
+}
+.date-block .dow {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.date-block .dom {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.day-info { flex: 1; min-width: 0; }
+.type-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.day-row.recycling .type-name { color: var(--recycling); }
+.day-row.general .type-name { color: var(--general); }
+
+.today-tag, .tomorrow-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  border: 1px solid rgba(232,163,61,0.5);
+  border-radius: 5px;
+  padding: 1px 5px;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+
+.full-date {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.btn-install {
+  display: block;
+  margin: 18px auto 0;
+  background: var(--surface-2);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.ios-hint {
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-row { animation: none; }
+}
