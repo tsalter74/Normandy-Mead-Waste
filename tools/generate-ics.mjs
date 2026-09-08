@@ -23,7 +23,7 @@ const ANCHOR_TYPE = "general";
 // Glass: its own weekday and cycle.
 // PLACEHOLDER — set GLASS_ANCHOR_ISO to a real glass collection date.
 const GLASS_ENABLED = true;
-const GLASS_ANCHOR_ISO = "2026-09-03";
+const GLASS_ANCHOR_ISO = "2026-09-24";
 const GLASS_INTERVAL_WEEKS = 4;
 
 const YEARS_AHEAD = 8;
