@@ -1,4 +1,4 @@
-const CACHE_NAME = "normandy-mead-waste-v2";
+const CACHE_NAME = "normandy-mead-waste-v5";
 
 const ASSETS = [
   "./",

@@ -4,9 +4,22 @@ A small, offline-first PWA showing upcoming bin collections.
 
 - **Recycling** — green
 - **General waste** — grey
+- **Glass** — blue
 
-Collections run weekly, alternating between the two. Everything is computed in
-the browser from a reference date, so there is no server or database.
+Two independent schedules, merged into one list:
+
+| Stream | Cycle |
+|---|---|
+| Waste & recycling | Weekly, alternating between the two |
+| Glass | Its own weekday, every N weeks (default 4) |
+
+Each is anchored to a known collection date. Everything is computed in the
+browser, so there is no server or database.
+
+> **⚠️ Set the glass reference date.** The default (`2026-09-03`) is a
+> placeholder. Open Settings → Glass and set *Reference date* to a real glass
+> collection day, and update `GLASS_ANCHOR_ISO` in `tools/generate-ics.mjs` to
+> match so the published calendar feeds agree.
 
 ## Using it
 
@@ -18,19 +31,123 @@ the browser from a reference date, so there is no server or database.
 
 | Setting | What it does |
 |---|---|
-| Collections to show | How many appear per page (2–12) |
-| Collection day | Which weekday collections fall on |
-| Reference date | A known collection date the schedule is anchored to |
-| …is a collection of | Which bin went out on that reference date |
+| Weeks to show | Size of the display window (1–12 weeks) |
+| Waste: collection day / reference date / type | Anchors the weekly alternating cycle |
+| Glass: include, day, interval, reference date | Anchors the glass cycle independently |
+| Remind me / At | When the bin reminder should fire (see below) |
 
-The reference date and collection day are kept in step automatically: picking a
-new date adopts that date's weekday, and changing the weekday shifts the
-reference date to the nearest matching day. **Reset to defaults** restores the
-original Normandy Mead schedule (Thursdays, anchored to 28 May 2026 = general
-waste).
+The view shows a **window of weeks**, not a fixed number of collections, so the
+number of cards varies — a week containing a glass collection shows more.
+
+For each stream the reference date and collection day stay in step
+automatically: picking a new date adopts that date's weekday, and changing the
+weekday shifts the reference date to the nearest matching day. **Reset to
+defaults** restores the original schedule.
 
 These are stored per device, so each household can adjust display preferences
 without affecting anyone else.
+
+---
+
+## Bin reminders
+
+Two ways to get a native reminder on your phone, both in **Settings**.
+
+### 1. Subscribe (recommended — self-updating)
+
+**Settings → Subscribe in calendar.** Your calendar app stores the *link*, not a
+copy, and re-fetches it periodically. When a holiday adjustment is published,
+the change reaches every subscriber automatically. Set up once, then forget.
+
+Published feeds live in `/calendar/`, one per alarm time:
+
+| Feed | Alarm |
+|---|---|
+| `bins-1700-day-before.ics` | 17:00 the day before |
+| `bins-1900-day-before.ics` | 19:00 the day before |
+| `bins-2100-day-before.ics` | 21:00 the day before |
+| `bins-0600-same-day.ics` | 06:00 on the day |
+| `bins-0700-same-day.ics` | 07:00 on the day |
+| `bins-no-alarm.ics` | none — calendar entries only |
+
+The app picks the feed matching your chosen reminder and shows the link. Alarm
+times are fixed because the alarm is baked into the published file; the settings
+panel says whether you have an exact match or the nearest one.
+
+**How to subscribe**
+
+- **iPhone/iPad** — tap *Subscribe in calendar*. iOS opens its subscribe dialog
+  via the `webcal://` link. (Or: Settings → Calendar → Accounts → Add Account →
+  Other → Add Subscribed Calendar, and paste the link.)
+- **Android** — Google Calendar can't add a subscription from the phone app.
+  Use *Copy link*, then on a computer go to
+  calendar.google.com → Other calendars **+** → **From URL** → paste. It then
+  syncs down to the phone.
+- **Outlook / Thunderbird / macOS Calendar** — "Add calendar from internet" or
+  "New calendar subscription", paste the link.
+
+**Refresh timing, honestly:** the feed asks clients to re-check every 6 hours,
+but that's a hint, not a rule. Apple honours it reasonably well and lets you
+choose the interval. Google Calendar decides for itself and is often slow —
+commonly 12–24 hours, sometimes longer. So publish holiday changes **several
+days ahead**, not the night before, and you'll be fine.
+
+### 2. One-off export (exact custom time)
+
+**Settings → One-off export.** Writes the next two years into your calendar
+using your exact chosen time. Good if you want, say, 18:30, which no published
+feed covers. The trade-off: it's a snapshot, so later holiday changes won't
+appear unless you export again. Events carry stable UIDs, so re-exporting
+updates in place rather than duplicating.
+
+### Why not in-app notifications?
+
+A PWA can't reliably schedule its own local notifications:
+
+- **Notification Triggers** — the API built for precisely this. Chrome trialled
+  it, then shelved it. It never shipped anywhere.
+- **Web Push** — works, but needs a server sending each push, which this project
+  deliberately doesn't have.
+- **Periodic Background Sync** — Chromium-only, and it can't target a time. You
+  register an *interval* ("at most every 12 hours") and the browser decides when
+  to run you, based on battery, network and how often you open the app. You
+  might get woken at 03:00 and 22:00 and never near 17:00. It also won't run at
+  all on iOS, in Firefox, or if the app isn't installed.
+
+The calendar route sidesteps all of it: a real OS notification, offline, firing
+whether or not the app is installed, identical on iOS and Android.
+
+---
+
+## Keeping the feeds current
+
+`/calendar/*.ics` is generated, not hand-written. Don't edit those files.
+
+`tools/generate-ics.mjs` reads `exceptions.json` and rebuilds every feed. The
+GitHub Action in `.github/workflows/build-calendar.yml` runs it automatically:
+
+- on every push touching `exceptions.json`, and
+- monthly, to roll the 3-year window forward so subscribers never run out.
+
+So the normal workflow is unchanged — **edit `exceptions.json`, commit, done.**
+The feeds rebuild and subscribers pick the change up on their next refresh.
+
+To run it by hand: `node tools/generate-ics.mjs`
+
+One setup step: the Action needs permission to push. In the repo, go to
+**Settings → Actions → General → Workflow permissions** and select
+**Read and write permissions**.
+
+Note the generator has its own copy of the schedule constants at the top
+(`ANCHOR_ISO`, `ANCHOR_TYPE`, `GLASS_ANCHOR_ISO`, `GLASS_INTERVAL_WEEKS`). If you
+change the permanent schedule in `app.js`, change it there too — otherwise the
+app and the published feeds will disagree.
+
+Feeds are generated **8 years** ahead (`YEARS_AHEAD`). That's deliberate: GitHub
+disables scheduled workflows after 60 days of repository inactivity, so a quiet
+repo could stop rebuilding. With 8 years published, subscribers have plenty of
+runway even if that happens, and any push to `exceptions.json` re-enables and
+regenerates immediately.
 
 ---
 
@@ -72,6 +189,15 @@ worked examples under `_example` you can copy.
 
 `scheduled` is the date the app *would* have shown — that is the key, so use the
 regular schedule's date, not the new one.
+
+**Glass needs `"stream": "glass"`.** Adjustments default to the waste stream. If
+waste and glass fall on the same day and both move, that's **two entries**, one
+per stream:
+
+```jsonc
+{ "scheduled": "2026-12-31", "actual": "2027-01-02", "reason": "New Year" },
+{ "scheduled": "2026-12-31", "actual": "2027-01-02", "stream": "glass", "reason": "New Year" }
+```
 
 ### Why it can't knock the cycle out of step
 
@@ -143,8 +269,15 @@ icons/            app icons (192/512, incl. maskable variants)
 5. The live URL appears after a minute or two.
 
 ### Installing
-- **Android / desktop Chrome**: an "Install app" button appears in the page.
-- **iPhone/iPad**: must be Safari — tap Share → **Add to Home Screen**.
-  iOS has no automatic install prompt, so the app shows this hint itself.
+
+Only Chromium browsers support an in-page install button, so the app detects the
+browser and shows the right instruction:
+
+- **Chrome / Edge / Samsung Internet** — an "Install app" button appears.
+- **Firefox on Android** — ⋮ menu → Install.
+- **Firefox on desktop** — can't install PWAs at all; bookmark it or use Chrome.
+- **Safari on iOS** — Share → Add to Home Screen.
+
+All install prompts disappear once the app is running installed.
 
 Works fully offline after the first load.

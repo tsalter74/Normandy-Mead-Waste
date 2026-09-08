@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Normandy Mead Waste Collection Calendar</title>
-<meta name="description" content="Weekly bin collection schedule for Normandy Mead — alternating recycling and general waste.">
+<meta name="description" content="Bin collection schedule for Normandy Mead — recycling, general waste and glass.">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -29,8 +29,9 @@
       <path d="M24 34 H76 V40 H24 Z" stroke="var(--text)" stroke-width="5"/>
       <path d="M42 28 H58 V34 H42 Z" stroke="var(--text)" stroke-width="5"/>
       <path d="M29 40 L33 84 H67 L71 40" stroke="var(--text)" stroke-width="5"/>
-      <path d="M43 52 V72" stroke="var(--recycling)" stroke-width="5"/>
-      <path d="M57 52 V72" stroke="var(--general)" stroke-width="5"/>
+      <path d="M41 52 V72" stroke="var(--recycling)" stroke-width="4.5"/>
+      <path d="M50 52 V72" stroke="var(--general)" stroke-width="4.5"/>
+      <path d="M59 52 V72" stroke="var(--glass)" stroke-width="4.5"/>
     </svg>
     <h1>Normandy Mead<span> Waste Collection</span></h1>
   </div>
@@ -40,7 +41,8 @@
       <defs>
         <linearGradient id="dGrad" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stop-color="var(--recycling)"/>
-          <stop offset="100%" stop-color="var(--general)"/>
+          <stop offset="50%" stop-color="var(--general)"/>
+          <stop offset="100%" stop-color="var(--glass)"/>
         </linearGradient>
       </defs>
       <line x1="0" y1="2" x2="400" y2="2" stroke="url(#dGrad)" stroke-width="2"/>
@@ -52,7 +54,8 @@
   <div class="top-bar">
     <nav class="legend" aria-label="Collection type key">
       <span class="legend-item"><i class="swatch recycling"></i>Recycling</span>
-      <span class="legend-item"><i class="swatch general"></i>General waste</span>
+      <span class="legend-item"><i class="swatch general"></i>General</span>
+      <span class="legend-item" id="legendGlass"><i class="swatch glass"></i>Glass</span>
     </nav>
     <button id="btnSettings" class="icon-btn" aria-label="Settings" title="Settings">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -65,18 +68,19 @@
   <div class="nav-row">
     <button id="btnToday" class="btn btn-today">Today</button>
     <div class="range-nav">
-      <button id="btnPrev" class="btn-icon" aria-label="Earlier collections">‹</button>
+      <button id="btnPrev" class="btn-icon" aria-label="Earlier">‹</button>
       <span id="rangeLabel" class="range-label">…</span>
-      <button id="btnNext" class="btn-icon" aria-label="Later collections">›</button>
+      <button id="btnNext" class="btn-icon" aria-label="Later">›</button>
     </div>
   </div>
 
   <p class="next-up" id="nextUp"></p>
 
   <section id="board" class="board"></section>
+  <p id="emptyNote" class="empty-note" hidden>No collections in this period.</p>
 
   <button id="installBtn" class="btn btn-install" hidden>⇩ Install app</button>
-  <p id="iosHint" class="ios-hint" hidden>On iPhone/iPad: tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install.</p>
+  <p id="installHint" class="ios-hint" hidden></p>
 </main>
 
 <!-- Settings panel -->
@@ -88,43 +92,120 @@
     </div>
 
     <label class="settings-field">
-      <span>Collections to show</span>
-      <select id="countSelect">
-        <option value="2">2</option>
-        <option value="4">4</option>
-        <option value="6">6</option>
-        <option value="8">8</option>
-        <option value="12">12</option>
+      <span>Weeks to show</span>
+      <select id="weeksSelect">
+        <option value="1">1 week</option>
+        <option value="2">2 weeks</option>
+        <option value="4">4 weeks</option>
+        <option value="6">6 weeks</option>
+        <option value="8">8 weeks</option>
+        <option value="12">12 weeks</option>
       </select>
     </label>
 
+    <div class="settings-sep"></div>
+
+    <!-- Waste: weekly, alternating -->
+    <div class="settings-group-head">
+      <i class="swatch general"></i><i class="swatch recycling"></i>
+      <strong>Waste &amp; recycling</strong>
+      <span class="group-meta">weekly, alternating</span>
+    </div>
+
     <label class="settings-field">
       <span>Collection day</span>
-      <select id="weekdaySelect">
-        <option value="0">Sunday</option>
-        <option value="1">Monday</option>
-        <option value="2">Tuesday</option>
-        <option value="3">Wednesday</option>
-        <option value="4">Thursday</option>
-        <option value="5">Friday</option>
-        <option value="6">Saturday</option>
-      </select>
+      <select id="wasteWeekday"></select>
     </label>
 
     <label class="settings-field">
       <span>Reference date</span>
-      <input type="date" id="anchorDate">
+      <input type="date" id="wasteAnchor">
     </label>
 
     <label class="settings-field">
       <span>…is a collection of</span>
-      <select id="anchorType">
+      <select id="wasteType">
         <option value="general">General waste</option>
         <option value="recycling">Recycling</option>
       </select>
     </label>
 
-    <p class="settings-note" id="scheduleSummary"></p>
+    <p class="settings-note" id="wasteSummary"></p>
+
+    <div class="settings-sep"></div>
+
+    <!-- Glass: its own cycle -->
+    <div class="settings-group-head">
+      <i class="swatch glass"></i>
+      <strong>Glass</strong>
+      <span class="group-meta">separate cycle</span>
+    </div>
+
+    <label class="settings-field">
+      <span>Include glass</span>
+      <input type="checkbox" id="glassEnabled" class="toggle">
+    </label>
+
+    <div id="glassFields">
+      <label class="settings-field">
+        <span>Collection day</span>
+        <select id="glassWeekday"></select>
+      </label>
+
+      <label class="settings-field">
+        <span>Every</span>
+        <select id="glassInterval">
+          <option value="2">2 weeks</option>
+          <option value="3">3 weeks</option>
+          <option value="4">4 weeks</option>
+          <option value="6">6 weeks</option>
+          <option value="8">8 weeks</option>
+        </select>
+      </label>
+
+      <label class="settings-field">
+        <span>Reference date</span>
+        <input type="date" id="glassAnchor">
+      </label>
+
+      <p class="settings-note" id="glassSummary"></p>
+    </div>
+
+    <div class="settings-sep"></div>
+
+    <div class="settings-group-head"><strong>Bin reminders</strong></div>
+
+    <label class="settings-field">
+      <span>Remind me</span>
+      <select id="remindWhen">
+        <option value="2">2 days before</option>
+        <option value="1">The day before</option>
+        <option value="0">On the day</option>
+      </select>
+    </label>
+
+    <label class="settings-field">
+      <span>At</span>
+      <input type="time" id="remindTime" value="17:00">
+    </label>
+
+    <p class="settings-note" id="reminderSummary"></p>
+
+    <div class="subscribe-box">
+      <div class="subscribe-head">
+        <strong>Subscribe (recommended)</strong>
+        <span id="subscribeMatch" class="status-pill"></span>
+      </div>
+      <p class="settings-note">Your calendar re-checks this link periodically, so holiday changes and future dates arrive on their own.</p>
+      <div class="subscribe-actions">
+        <button id="btnSubscribe" class="btn btn-calendar">Subscribe in calendar</button>
+        <button id="btnCopyUrl" class="btn btn-copy">Copy link</button>
+      </div>
+      <code id="subscribeUrl" class="subscribe-url"></code>
+    </div>
+
+    <button id="btnCalendar" class="btn btn-plain">One-off export instead (.ics)</button>
+    <p class="settings-note">A snapshot of the next 2 years using your exact time above, but it won't update later.</p>
 
     <div class="settings-sep"></div>
 
@@ -132,7 +213,7 @@
       <span>Holiday adjustments</span>
       <span id="exceptionStatus" class="status-pill">checking…</span>
     </div>
-    <p class="settings-note">Bank holiday changes are published centrally, so everyone on the schedule gets the same updates automatically.</p>
+    <p class="settings-note">Bank holiday changes are published centrally, so everyone gets the same updates automatically.</p>
 
     <button id="btnReset" class="btn btn-reset">Reset to defaults</button>
     <p class="settings-note settings-foot">Settings are saved on this device only.</p>
