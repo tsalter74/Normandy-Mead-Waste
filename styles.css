@@ -334,10 +334,13 @@ main {
   background: rgba(4, 9, 16, 0.62);
   backdrop-filter: blur(2px);
   display: flex;
-  align-items: flex-end;
+  /* NOT align-items:flex-end — with a panel taller than the screen that makes
+     the overflowing top unreachable. An auto margin pins it to the bottom
+     without breaking scroll. */
+  align-items: flex-start;
   justify-content: center;
   z-index: 10;
-  overflow-y: auto;
+  overflow: hidden;
 }
 @media (min-width: 480px) { .settings-overlay { align-items: center; } }
 
@@ -347,16 +350,36 @@ main {
   border-radius: 16px 16px 0 0;
   width: 100%;
   max-width: 420px;
-  padding: 18px 20px calc(20px + env(safe-area-inset-bottom));
+  margin-top: auto;              /* sit at the bottom on mobile */
+  max-height: 92vh;
+  max-height: 92dvh;             /* dvh accounts for mobile browser chrome */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;  /* don't scroll the page behind it */
+  padding: 0 20px calc(20px + env(safe-area-inset-bottom));
   animation: rise 0.2s ease;
 }
-@media (min-width: 480px) { .settings-panel { border-radius: 16px; margin: 20px 0; } }
+@media (min-width: 480px) {
+  .settings-panel {
+    border-radius: 16px;
+    margin: auto;
+    max-height: 86vh;
+    max-height: 86dvh;
+  }
+}
 
 .settings-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  /* Stays put while the body scrolls, so Close is always reachable. */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface);
+  padding: 16px 0 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--hairline);
 }
 .settings-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.05rem; }
 

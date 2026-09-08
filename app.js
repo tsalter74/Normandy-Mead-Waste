@@ -15,7 +15,7 @@
 
     // Glass — PLACEHOLDER: set this to a real glass collection date.
     glassEnabled: true,
-    glassAnchorISO: "2026-09-24",
+    glassAnchorISO: "2026-09-03",
     glassWeekday: 4,
     glassIntervalWeeks: 4,
 
@@ -475,6 +475,9 @@
   el.btnSettings.addEventListener("click", () => {
     syncSettingsForm(); refreshExceptionStatus();
     el.settingsOverlay.hidden = false;
+    // Always open at the top, whatever position it was left in last time.
+    const panel = el.settingsOverlay.querySelector(".settings-panel");
+    if (panel) panel.scrollTop = 0;
   });
   el.btnCloseSettings.addEventListener("click", () => { el.settingsOverlay.hidden = true; });
   el.settingsOverlay.addEventListener("click", (e) => {
