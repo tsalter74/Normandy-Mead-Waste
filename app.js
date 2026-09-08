@@ -15,7 +15,7 @@
 
     // Glass — PLACEHOLDER: set this to a real glass collection date.
     glassEnabled: true,
-    glassAnchorISO: "2026-09-03",
+    glassAnchorISO: "2026-09-24",
     glassWeekday: 4,
     glassIntervalWeeks: 4,
 
