@@ -1,1 +1,43 @@
+name: Rebuild calendar feeds
 
+# Keeps /calendar/*.ics in step with exceptions.json, and rolls the date
+# window forward every month so subscribers never run off the end.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "exceptions.json"
+      - "tools/generate-ics.mjs"
+      - ".github/workflows/build-calendar.yml"
+  schedule:
+    # 04:00 UTC on the 1st of each month
+    - cron: "0 4 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate .ics feeds
+        run: node tools/generate-ics.mjs
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- calendar; then
+            echo "No calendar changes."
+          else
+            git add calendar
+            git commit -m "Rebuild calendar feeds"
+            git push
+          fi
